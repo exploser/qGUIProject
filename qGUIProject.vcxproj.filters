@@ -53,9 +53,6 @@
     <ClCompile Include="VideoWindowThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OpenCVSurface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PixmapDisplay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -86,9 +83,6 @@
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_VideoWindow.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OpenCVSurface.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PixmapDisplay.h">
       <Filter>Header Files</Filter>

@@ -20,9 +20,9 @@ void qGUIProject::on_btnShowVids_clicked()
 	uiMain.btnTerminate->setEnabled(true);
 	uiMain.btnShowVids->setEnabled(false);
 	// one thread acts as the clock, incrementing a QSemaphore every second
-	thHighFPS = new VideoWindowThread("vid1_25.avi", 25, uiMain.rbAlter1->isChecked());
+	thHighFPS = new VideoWindowThread("vid1_25.avi", 25, uiMain.rbAlter1->isChecked(), syncImpulseA, syncImpulseB);
 	// the other listens to the clock, decrementing a QSemaphore every second
-	thLowFPS = new VideoWindowThread("vid2_5.mp4", 5, uiMain.rbAlter2->isChecked(), thHighFPS);
+	thLowFPS = new VideoWindowThread("vid2_5.mp4", 5, uiMain.rbAlter2->isChecked(), syncImpulseB, syncImpulseA);
 
 	// connect the threads to gui output
 	connect(thHighFPS, &VideoWindowThread::frameAcquired, uiVidHigh.vidLabel, &PixmapDisplay::onFrameAcquired);

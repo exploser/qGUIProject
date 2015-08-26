@@ -158,7 +158,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="OpenCVSurface.cpp" />
     <ClCompile Include="PixmapDisplay.cpp" />
     <ClCompile Include="qguiproject.cpp" />
     <ClCompile Include="VideoWindowThread.cpp" />
@@ -206,7 +205,6 @@
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_qguiproject.h" />
     <ClInclude Include="GeneratedFiles\ui_VideoWindow.h" />
-    <ClInclude Include="OpenCVSurface.h" />
     <ClInclude Include="PixmapDisplay.h" />
     <CustomBuild Include="VideoWindowThread.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_MULTIMEDIA_LIB -DQT_WIDGETS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtMultimedia" "-I$(QTDIR)\include\QtWidgets"</Command>

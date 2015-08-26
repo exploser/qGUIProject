@@ -18,9 +18,8 @@ public:
 		QT
 	};
 
-	VideoWindowThread(std::string filename, int frameRate = 30, bool altered = false, VideoWindowThread *syncWithThread = NULL);
+	VideoWindowThread(std::string filename, int frameRate = 30, bool altered = false, QSemaphore *syncImpulseA = NULL, QSemaphore *syncImpulseB = NULL);
 	~VideoWindowThread();
-	QSemaphore syncImpulses;
 
 public slots:
 	void onAlteredChanged(bool altered);
@@ -33,14 +32,14 @@ signals:
 private:
 	int frameRate;
 	cv::VideoCapture *vc;
-	void run();
-	QElapsedTimer frameTimer;
-	uint64 frameTime = 400;
+	QElapsedTimer elapsedFrameTime;
+	uint64 frameTime;
 	cv::Mat frame;
 	uint64 framesPlayed;
 	bool altered = true;
 	AlteringFramework framework = AlteringFramework::OpenCV;
-	VideoWindowThread *syncWithThread;
+	QSemaphore *syncImpulseA, *syncImpulseB;
+	void run();
 	void doSync();
 };
 

@@ -5,6 +5,7 @@
 #include "ui_VideoWindow.h"
 #include <QCloseEvent>
 #include <QLabel>
+#include <QSemaphore>
 #include "VideoWindowThread.h"
 
 class qGUIProject : public QMainWindow
@@ -14,7 +15,8 @@ class qGUIProject : public QMainWindow
 public:
 	qGUIProject(QMainWindow *parent = 0);
 	~qGUIProject();
-
+	QSemaphore *syncImpulseA = new QSemaphore,
+		*syncImpulseB = new QSemaphore;
 private:
 	Ui::qGUIProjectClass uiMain;
 	Ui::VideoWindowFormClass uiVidHigh, uiVidLow;

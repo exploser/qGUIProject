@@ -1,10 +1,11 @@
 #include "VideoWindowThread.h"
 
-VideoWindowThread::VideoWindowThread(std::string filename, int frameRate, bool altered, VideoWindowThread *syncWithThread)
+VideoWindowThread::VideoWindowThread(std::string filename, int frameRate, bool altered, QSemaphore *syncImpulseA, QSemaphore *syncImpulseB)
 {
 	this->frameRate = frameRate;
 	this->altered = altered;
-	this->syncWithThread = syncWithThread;
+	this->syncImpulseA = syncImpulseA;
+	this->syncImpulseB = syncImpulseB;
 	frameTime = 1000 / frameRate;
 	vc = new cv::VideoCapture(filename);
 	//vc = new cv::VideoCapture(0); 
@@ -17,10 +18,8 @@ VideoWindowThread::VideoWindowThread(std::string filename, int frameRate, bool a
 
 void VideoWindowThread::run()
 {
-	frameTimer.start();
+	elapsedFrameTime.start();
 	frame = cv::Mat();
-
-
 
 	while (vc->read(frame))
 	{
@@ -54,7 +53,7 @@ void VideoWindowThread::run()
 			emit frameAcquired(pm);
 		}
 
-		uint64 t = frameTimer.elapsed();
+		uint64 t = elapsedFrameTime.elapsed();
 		if (t < frameTime)
 		{
 			int64 trem = frameTime - t;
@@ -65,7 +64,7 @@ void VideoWindowThread::run()
 		{
 			doSync();
 		}
-		frameTimer.start();
+		elapsedFrameTime.start();
 	}
 	// when one (shorter) video finishes playing, stop the other one
 	emit vidFinished();
@@ -90,15 +89,9 @@ void VideoWindowThread::onFrameworkChanged(bool useOpenCV)
 
 void VideoWindowThread::doSync()
 {
-	if (syncWithThread != NULL)
+	if (syncImpulseA != NULL && syncImpulseB != NULL)
 	{
-		if (syncWithThread->isRunning())
-			syncWithThread->syncImpulses.acquire();
-		else
-			return;
-	}
-	else
-	{
-		syncImpulses.release();
+		syncImpulseB->release();
+		syncImpulseA->acquire();
 	}
 }
