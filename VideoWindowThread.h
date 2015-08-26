@@ -3,10 +3,9 @@
 #include <QElapsedTimer>
 #include <QPixmap>
 #include <QPainter>
+#include <QSemaphore>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-
-
 
 class VideoWindowThread :
 	public QThread
@@ -19,9 +18,9 @@ public:
 		QT
 	};
 
-	VideoWindowThread(std::string filename, int frameRate = 30, bool altered = false);
+	VideoWindowThread(std::string filename, int frameRate = 30, bool altered = false, VideoWindowThread *syncWithThread = NULL);
 	~VideoWindowThread();
-	int64 timeCorrection = 0;
+	QSemaphore syncImpulses;
 
 public slots:
 	void onAlteredChanged(bool altered);
@@ -29,18 +28,19 @@ public slots:
 
 signals:
 	void frameAcquired(QPixmap pm);
-	void frameTimeCalculated(quint64 t);
-	void secondSync(VideoWindowThread *currentThread);
+	void vidFinished();
 
 private:
 	int frameRate;
 	cv::VideoCapture *vc;
 	void run();
-	QElapsedTimer timer, secondtimer;
+	QElapsedTimer frameTimer;
 	uint64 frameTime = 400;
 	cv::Mat frame;
-	uint64 frames;
+	uint64 framesPlayed;
 	bool altered = true;
 	AlteringFramework framework = AlteringFramework::OpenCV;
+	VideoWindowThread *syncWithThread;
+	void doSync();
 };
 

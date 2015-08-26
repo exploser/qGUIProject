@@ -113,7 +113,7 @@ public:
 
     void retranslateUi(QMainWindow *qGUIProjectClass)
     {
-        qGUIProjectClass->setWindowTitle(QApplication::translate("qGUIProjectClass", "qGUIProject", 0));
+        qGUIProjectClass->setWindowTitle(QApplication::translate("qGUIProjectClass", "QThreaded Video Display", 0));
         btnShowVids->setText(QApplication::translate("qGUIProjectClass", "Start", 0));
         groupBox->setTitle(QApplication::translate("qGUIProjectClass", "Alteration", 0));
         rbAlter1->setText(QApplication::translate("qGUIProjectClass", "High FPS Window", 0));

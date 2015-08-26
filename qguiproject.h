@@ -1,12 +1,11 @@
-#ifndef QGUIPROJECT_H
-#define QGUIPROJECT_H
+#pragma once
 
 #include <QtWidgets/QMainWindow>
 #include "ui_qguiproject.h"
 #include "ui_VideoWindow.h"
+#include <QCloseEvent>
 #include <QLabel>
 #include "VideoWindowThread.h"
-#include <QVideoWidget>
 
 class qGUIProject : public QMainWindow
 {
@@ -22,12 +21,8 @@ private:
 	QWidget *vWindowHigh = new QWidget,
 		*vWindowLow = new QWidget;
 	VideoWindowThread *thLowFPS, *thHighFPS;
-	QElapsedTimer syncTimer;
-	VideoWindowThread *syncLastThread;
+	void closeEvent(QCloseEvent *event);
 public slots:
 	void on_btnShowVids_clicked();
 	void on_btnTerminate_clicked();
-	void onSecondSync(VideoWindowThread *thread);
 };
-
-#endif // QGUIPROJECT_H

@@ -1,87 +1,74 @@
 #include "VideoWindowThread.h"
 
-VideoWindowThread::VideoWindowThread(std::string filename, int frameRate, bool altered)
+VideoWindowThread::VideoWindowThread(std::string filename, int frameRate, bool altered, VideoWindowThread *syncWithThread)
 {
 	this->frameRate = frameRate;
 	this->altered = altered;
-	frameTime = 1000000000 / frameRate;
+	this->syncWithThread = syncWithThread;
+	frameTime = 1000 / frameRate;
 	vc = new cv::VideoCapture(filename);
 	//vc = new cv::VideoCapture(0); 
 	if (!vc->isOpened())
 		return;
 	vc->set(CV_CAP_PROP_FPS, frameRate);
 	vc->set(CV_CAP_PROP_POS_FRAMES, 0);
-	frames = 1;
-	emit secondSync(this);
+	framesPlayed = 1;
 }
 
 void VideoWindowThread::run()
 {
-	timer.start();
-	secondtimer.start();
+	frameTimer.start();
 	frame = cv::Mat();
-	forever
+
+
+
+	while (vc->read(frame))
 	{
-		while (vc->read(frame))
+		if (!frame.empty())
 		{
-			//vc->retrieve(frame);
-			if (!frame.empty())
+			cv::cvtColor(frame, frame, CV_BGR2RGB);
+
+			// the data is not copied, which allows for its further modification in both objects simultaneously
+			QImage qimg(frame.data, frame.size().width, frame.size().height, QImage::Format::Format_RGB888);
+			if (altered)
 			{
-				cv::cvtColor(frame, frame, CV_BGR2RGB);
-
-				// the data is not copied, which allows for its further modification in both objects simultaneously
-				QImage qimg(frame.data, frame.size().width, frame.size().height, QImage::Format::Format_RGB888);
-				if (altered)
+				if (framework == AlteringFramework::OpenCV)
 				{
-					if (framework == AlteringFramework::OpenCV)
-					{
-						cv::Mat roi = frame(cv::Rect(10, 10, 90, 90));
-						cv::Mat color(roi.size(), CV_8UC3, cv::Scalar(0, 255, 0));
-						cv::addWeighted(color, 0.5, roi, 0.5, 0.0, roi);
-						cv::rectangle(frame, cv::Point(10, 10), cv::Point(100, 100), cv::Scalar(255, 0, 0));
-					}
-					else
-					{
-						QPainter p(&qimg);
-						p.setBrush(Qt::NoBrush);
-						p.setPen(Qt::red);
-						p.fillRect(QRect(10, 10, 90, 90), QColor(0, 0, 255, 127));
-						p.drawRect(QRect(10, 10, 90, 90));
-					}
-				}
-				QPixmap pm = QPixmap::fromImage(qimg);
-				emit frameAcquired(pm);
-			}
-
-			// did i even need this?
-			//frame.release();
-
-			uint64 t = timer.nsecsElapsed();
-
-			if (t < frameTime)
-			{
-				int64 trem = frameTime - t;
-				if (timeCorrection < trem)
-				{
-					usleep((trem - timeCorrection) / 1000);
-					timeCorrection = 0;
+					cv::Mat roi = frame(cv::Rect(10, 10, 90, 90));
+					cv::Mat color(roi.size(), CV_8UC3, cv::Scalar(0, 255, 0));
+					cv::addWeighted(color, 0.5, roi, 0.5, 0.0, roi);
+					cv::rectangle(frame, cv::Point(10, 10), cv::Point(100, 100), cv::Scalar(255, 0, 0));
+					cv::putText(frame, std::to_string(framesPlayed), cv::Point(10, 50), CV_FONT_NORMAL, 1, cv::Scalar::all(255));
 				}
 				else
-					timeCorrection = 0;
+				{
+					QPainter p(&qimg);
+					p.setBrush(Qt::NoBrush);
+					p.setPen(Qt::red);
+					p.fillRect(QRect(10, 10, 90, 90), QColor(0, 0, 255, 127));
+					p.drawRect(QRect(10, 10, 90, 90));
+					p.drawText(QPoint(10, 50), QString::number(framesPlayed));
+				}
 			}
-
-			if (!(frames % frameRate))
-			{
-				t = secondtimer.nsecsElapsed();
-				timeCorrection += t - 1000000000;
-				secondtimer.start();
-				emit secondSync(this);
-			}
-			timer.restart();
-			frames++;
+			QPixmap pm = QPixmap::fromImage(qimg);
+			emit frameAcquired(pm);
 		}
-		vc->set(CV_CAP_PROP_POS_FRAMES, 0);
+
+		uint64 t = frameTimer.elapsed();
+		if (t < frameTime)
+		{
+			int64 trem = frameTime - t;
+			msleep(trem);
+			//msleep(frameTime);
+		}
+		if (framesPlayed++ % frameRate == 0)
+		{
+			doSync();
+		}
+		frameTimer.start();
 	}
+	// when one (shorter) video finishes playing, stop the other one
+	emit vidFinished();
 }
 
 VideoWindowThread::~VideoWindowThread()
@@ -99,4 +86,19 @@ void VideoWindowThread::onFrameworkChanged(bool useOpenCV)
 		this->framework = AlteringFramework::OpenCV;
 	else
 		this->framework = AlteringFramework::QT;
+}
+
+void VideoWindowThread::doSync()
+{
+	if (syncWithThread != NULL)
+	{
+		if (syncWithThread->isRunning())
+			syncWithThread->syncImpulses.acquire();
+		else
+			return;
+	}
+	else
+	{
+		syncImpulses.release();
+	}
 }

@@ -7,11 +7,6 @@ qGUIProject::qGUIProject(QMainWindow *parent)
 	uiVidLow.setupUi(vWindowLow);
 	vWindowHigh->setWindowTitle("High FPS");
 	vWindowLow->setWindowTitle("Low FPS");
-	//this->setWindowTitle("No files selected");
-	//QLabel lbl(widget);
-	//QPixmap pm("sasha.png");
-	//lbl.setPixmap(pm);
-	//this->setCentralWidget(widget);
 
 }
 
@@ -24,29 +19,32 @@ void qGUIProject::on_btnShowVids_clicked()
 {
 	uiMain.btnTerminate->setEnabled(true);
 	uiMain.btnShowVids->setEnabled(false);
-	thHighFPS = new VideoWindowThread("vid1_25.avi", 25, true);
-	thLowFPS = new VideoWindowThread("vid2_5.mp4", 5);
-	connect(thHighFPS, &VideoWindowThread::frameAcquired, uiVidHigh.vidLabel, &PixmapDisplay::onFrameAcquired);
-	connect(thHighFPS, &VideoWindowThread::frameTimeCalculated, uiVidHigh.vidLabel, &PixmapDisplay::onFrameTimeReceived);
-	connect(thLowFPS, &VideoWindowThread::frameAcquired, uiVidLow.vidLabel, &PixmapDisplay::onFrameAcquired);
-	connect(thLowFPS, &VideoWindowThread::frameTimeCalculated, uiVidLow.vidLabel, &PixmapDisplay::onFrameTimeReceived);
+	// one thread acts as the clock, incrementing a QSemaphore every second
+	thHighFPS = new VideoWindowThread("vid1_25.avi", 25, uiMain.rbAlter1->isChecked());
+	// the other listens to the clock, decrementing a QSemaphore every second
+	thLowFPS = new VideoWindowThread("vid2_5.mp4", 5, uiMain.rbAlter2->isChecked(), thHighFPS);
 
+	// connect the threads to gui output
+	connect(thHighFPS, &VideoWindowThread::frameAcquired, uiVidHigh.vidLabel, &PixmapDisplay::onFrameAcquired);
+	connect(thLowFPS, &VideoWindowThread::frameAcquired, uiVidLow.vidLabel, &PixmapDisplay::onFrameAcquired);
+
+	// connect gui input to the threads
 	connect(uiMain.rbAlter1, &QRadioButton::toggled, thHighFPS, &VideoWindowThread::onAlteredChanged);
 	connect(uiMain.rbAlter2, &QRadioButton::toggled, thLowFPS, &VideoWindowThread::onAlteredChanged);
-
 	connect(uiMain.rbFramework1, &QRadioButton::toggled, thHighFPS, &VideoWindowThread::onFrameworkChanged);
 	connect(uiMain.rbFramework1, &QRadioButton::toggled, thLowFPS, &VideoWindowThread::onFrameworkChanged);
 
-	connect(thHighFPS, &VideoWindowThread::secondSync, this, &qGUIProject::onSecondSync);
+	// connect the threads to termination slot; this is also triggered by 'terminate' button
+	// for some videos this has a huge delay (~5s), probably because cv::VideoCapture::read() creates one
+	connect(thHighFPS, &VideoWindowThread::vidFinished, this, &qGUIProject::on_btnTerminate_clicked);
+	connect(thLowFPS, &VideoWindowThread::vidFinished, this, &qGUIProject::on_btnTerminate_clicked);
 
 	thHighFPS->start();
 	thLowFPS->start();
 	vWindowHigh->show();
 	vWindowLow->show();
-	//th->wait(5000);
 
 }
-
 
 void qGUIProject::on_btnTerminate_clicked()
 {
@@ -58,11 +56,8 @@ void qGUIProject::on_btnTerminate_clicked()
 	uiMain.btnShowVids->setEnabled(true);
 }
 
-void qGUIProject::onSecondSync(VideoWindowThread *thread)
+void qGUIProject::closeEvent(QCloseEvent *event)
 {
-
-	uint64 t = syncTimer.nsecsElapsed();
-	if (t < 500000000 && syncLastThread != thread)
-		syncLastThread->timeCorrection += t;
-	syncLastThread = thread;
+	event->accept();
+	qApp->exit(0);
 }
