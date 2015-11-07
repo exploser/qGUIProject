@@ -13,13 +13,13 @@ TARGET = qGUIProject
 TEMPLATE = app
 
 SOURCES += 	main.cpp \
-			PixmapDisplay.cpp \
-			QGuiProject.cpp \
-			VideoWindowThread.cpp \
+                PixmapDisplay.cpp \
+                QGuiProject.cpp \
+                VideoWindowThread.cpp \
 
-HEADERS  += PixmapDisplay.h \
-			QGuiProject.h \
-			VideoWindowThread.h \
+HEADERS  +=     PixmapDisplay.h \
+                QGuiProject.h \
+                VideoWindowThread.h \
 
 FORMS += \
     qguiproject.ui \
