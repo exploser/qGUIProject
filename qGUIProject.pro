@@ -12,22 +12,18 @@ TARGET = qGUIProject
 
 TEMPLATE = app
 
-SOURCES += main.cpp \
-        PixmapDisplay.cpp \
-		QGuiProject.cpp \
-		VideoWindowThread.cpp \
+SOURCES += 	main.cpp \
+			PixmapDisplay.cpp \
+			QGuiProject.cpp \
+			VideoWindowThread.cpp \
 
-HEADERS  += main.h \
-        PixmapDisplay.h \
-		QGuiProject.h \
-		VideoWindowThread.h \
+HEADERS  += PixmapDisplay.h \
+			QGuiProject.h \
+			VideoWindowThread.h \
 
 FORMS += \
     qguiproject.ui \
     VideoWindow.ui
-
-RESOURCES += \
-    qguiproject.qrc
 
 DISTFILES += \
     LICENSE
