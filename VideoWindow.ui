@@ -33,7 +33,7 @@
   <customwidget>
    <class>PixmapDisplay</class>
    <extends>QLabel</extends>
-   <header>pixmapdisplay.h</header>
+   <header>PixmapDisplay.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
