@@ -33,14 +33,14 @@ DISTFILES += \
 
 OPENCV_DIR = $$clean_path($$(OPENCV_PATH))
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OPENCV_DIR/build/x64/vc12/lib/\
+CONFIG(release, debug|release): LIBS += -L$$OPENCV_DIR/build/x64/vc12/lib/\
     -lopencv_core2411 \
     -lopencv_highgui2411 \
     -lopencv_imgproc2411 \
     -lopencv_features2d2411 \
     -lopencv_calib3d2411 \
 
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OPENCV_DIR/build/x64/vc12/lib/ \
+else:CONFIG(debug, debug|release): LIBS += -L$$OPENCV_DIR/build/x64/vc12/lib/ \
     -lopencv_core2411d \
     -lopencv_highgui2411d \
     -lopencv_imgproc2411d \
