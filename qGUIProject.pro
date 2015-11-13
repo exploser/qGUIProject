@@ -14,7 +14,7 @@ TARGET = qGUIProject
 
 TEMPLATE = app
 
-SOURCES += 	main.cpp \
+SOURCES +=      main.cpp \
                 PixmapDisplay.cpp \
                 QGuiProject.cpp \
                 VideoWindowThread.cpp \
@@ -39,13 +39,15 @@ CONFIG(release, debug|release): LIBS += -L$$OPENCV_DIR/build/x64/vc12/lib/\
     -lopencv_imgproc \
     -lopencv_features2d \
     -lopencv_calib3d \
+    -lopencv_videoio \
 
-else:CONFIG(debug, debug|release): LIBS += -L$$OPENCV_DIR/build/x64/vc12/lib/ \
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OPENCV_DIR/build/x64/vc12/lib/ \
     -lopencv_cored \
     -lopencv_highguid \
     -lopencv_imgprocd \
     -lopencv_features2dd \
     -lopencv_calib3dd \
+    -lopencv_videoiod \
 
 INCLUDEPATH += $$OPENCV_DIR/build/include
 DEPENDPATH += $$OPENCV_DIR/build/include
