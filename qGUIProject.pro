@@ -34,18 +34,18 @@ DISTFILES += \
 OPENCV_DIR = $$clean_path($$(OPENCV_PATH))
 
 CONFIG(release, debug|release): LIBS += -L$$OPENCV_DIR/build/x64/vc12/lib/\
-    -lopencv_core2411 \
-    -lopencv_highgui2411 \
-    -lopencv_imgproc2411 \
-    -lopencv_features2d2411 \
-    -lopencv_calib3d2411 \
+    -lopencv_core \
+    -lopencv_highgui \
+    -lopencv_imgproc \
+    -lopencv_features2d \
+    -lopencv_calib3d \
 
 else:CONFIG(debug, debug|release): LIBS += -L$$OPENCV_DIR/build/x64/vc12/lib/ \
-    -lopencv_core2411d \
-    -lopencv_highgui2411d \
-    -lopencv_imgproc2411d \
-    -lopencv_features2d2411d \
-    -lopencv_calib3d2411d \
+    -lopencv_cored \
+    -lopencv_highguid \
+    -lopencv_imgprocd \
+    -lopencv_features2dd \
+    -lopencv_calib3dd \
 
 INCLUDEPATH += $$OPENCV_DIR/build/include
 DEPENDPATH += $$OPENCV_DIR/build/include
